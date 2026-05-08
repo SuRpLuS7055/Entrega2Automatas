@@ -1,0 +1,21 @@
+
+// Esto es un comentario
+/* Y esto tambei
+
+ej
+*/
+
+
+
+arbol ejemplo {
+#comentario
+node [shape = square, label = "a", color = "green", fontcolor = blue , style = bold]
+edge [dir = forward, label = "0", color = "blue", fontcolor = red , style = dashed]
+a hijos = {b [label = "6", color = "red"],c [label = "100"]} [label = "A", color = "blue", shape = circle];
+b hijos = {d [label = "80"] } [label = "B"];
+c hijos = {f [label = "20"], g [label = "22"]} [label = "C"];
+d hijos = {e [label = "14"] } [label ="D"];
+e [label = "E 14", shape = circle];
+f [label = "F 5", shape = circle];
+g [label = "G 4", shape = circle];
+}

@@ -1,0 +1,143 @@
+package uclm.automatas;
+
+import java_cup.runtime.*;
+
+parser code {:
+	public String salidaDot;
+:};
+
+terminal ARBOL, NODE, EDGE, HIJOS;
+terminal LLAVEI, LLAVED, CORCHETEI, CORCHETED, ASSIG, COMA, PCOMA;
+
+terminal String ID;
+terminal String NUM;
+terminal String STRING;
+terminal String COMENTARIO;
+
+terminal LABEL, COLOR, FONTCOLOR, STYLE, SHAPE, DIR;
+
+non terminal String programa, com_antes_arbol, contenido, contenido_arbol, seccion;
+non terminal String atributos_nodo, lista_atributos_nodo, atributo_nodo;
+non terminal String atributos_arista, lista_atributos_arista, atributo_arista;
+non terminal String valor; 
+
+non terminal infoHijo hijo;
+non terminal listaHijos lista_hijos; 
+
+
+
+
+
+
+start with programa;
+
+
+
+
+programa ::= com_antes_arbol:c ARBOL ID:n LLAVEI contenido:co LLAVED
+           {:
+              RESULT = "digraph " + n + " {\n" + co + "}";
+              salidaDot = RESULT;
+           :};
+
+
+com_antes_arbol ::= 
+                  {: RESULT = ""; :}
+                  | com_antes_arbol:c COMENTARIO:co
+                  {: RESULT = c; :};
+
+
+contenido ::= 
+            {: RESULT = ""; :}
+            | contenido_arbol:c
+            {: RESULT = c; :};
+
+
+contenido_arbol ::= contenido_arbol:c seccion:s
+                  {: RESULT = c + s; :}
+                  | seccion:s
+                  {: RESULT = s; :};
+
+
+seccion ::= COMENTARIO:c
+          {: RESULT = ""; :}
+          | NODE atributos_nodo:a
+          {: RESULT = "node " + a + "\n"; :}
+          | EDGE atributos_arista:a
+          {: RESULT = "edge " + a + "\n"; :}
+          | ID:n atributos_nodo:a PCOMA
+          {: RESULT = n + " " + a + ";\n"; :}
+          | ID:n HIJOS ASSIG LLAVEI lista_hijos:l LLAVED atributos_nodo:a PCOMA
+			{: 
+			   String salida = n + " " + a + ";\n";
+			   listaHijos aux = l;
+			
+			   while (aux != null) {
+			      salida = salida + n + " -> " + aux.hijoActual.nombre + " " + aux.hijoActual.atributosArista + ";\n";
+			      aux = aux.resto;
+			   }
+			
+			   RESULT = salida;
+			:}; 
+
+
+atributos_nodo ::= CORCHETEI lista_atributos_nodo:l CORCHETED
+                 {: RESULT = "[ " + l + " ]"; :};
+
+
+lista_atributos_nodo ::= lista_atributos_nodo:l COMA atributo_nodo:a
+                       {: RESULT = l + ", " + a; :}
+                       | atributo_nodo:a
+                       {: RESULT = a; :};
+                       
+
+atributo_nodo ::= LABEL ASSIG valor:v
+                {: RESULT = "label = " + v; :}
+                | COLOR ASSIG valor:v
+                {: RESULT = "color = " + v; :}
+                | FONTCOLOR ASSIG valor:v
+                {: RESULT = "fontcolor = " + v; :}
+                | STYLE ASSIG valor:v
+                {: RESULT = "style = " + v; :}
+                | SHAPE ASSIG valor:v
+                {: RESULT = "shape = " + v; :};
+
+
+atributos_arista ::= CORCHETEI lista_atributos_arista:l CORCHETED
+                   {: RESULT = "[ " + l + " ]"; :};
+
+
+lista_atributos_arista ::= lista_atributos_arista:l COMA atributo_arista:a
+                         {: RESULT = l + ", " + a; :}
+                         | atributo_arista:a
+                         {: RESULT = a; :};
+
+
+atributo_arista ::= LABEL ASSIG valor:v
+                  {: RESULT = "label = " + v; :}
+                  | COLOR ASSIG valor:v
+                  {: RESULT = "color = " + v; :}
+                  | FONTCOLOR ASSIG valor:v
+                  {: RESULT = "fontcolor = " + v; :}
+                  | STYLE ASSIG valor:v
+                  {: RESULT = "style = " + v; :}
+                  | DIR ASSIG valor:v
+                  {: RESULT = "direction = " + v; :};
+
+
+valor ::= ID:v
+        {: RESULT = v; :}
+        | NUM:n
+        {: RESULT = n; :}
+        | STRING:s
+        {: RESULT = s; :};
+        
+
+lista_hijos ::= lista_hijos:l COMA hijo:h
+              {: RESULT = new listaHijos(l, h); :}
+              | hijo:h
+              {: RESULT = new listaHijos(h); :};
+
+
+hijo ::= ID:n atributos_arista:a
+       {: RESULT = new infoHijo(n, a); :};
